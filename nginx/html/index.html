@@ -1069,15 +1069,24 @@
             document.getElementById('gateway-target').textContent = endpoint;
 
             try {
-                const res = await fetch(endpoint);
+                const res = await fetch(endpoint, { headers: { 'Accept': 'application/json' } });
                 const requestId = res.headers.get('x-request-id') || 'gen-uuid';
                 const deviceType = res.headers.get('x-device-type') || 'desktop';
-                const json = await res.json();
 
+                // Handle non-JSON error responses (e.g. NGINX 429 HTML pages)
+                const contentType = res.headers.get('content-type') || '';
+                let json;
+                if (contentType.includes('application/json')) {
+                    json = await res.json();
+                } else {
+                    json = { status: res.status, statusText: res.statusText, body: await res.text() };
+                }
+
+                const statusColor = res.ok ? 'status-200' : 'status-429';
                 consoleEl.innerHTML = `
                     <div class="console-header">
                         <span>ENDPOINT: ${endpoint}</span>
-                        <span>Request-ID: ${requestId.substring(0, 8)}... &bull; Device: ${deviceType}</span>
+                        <span><span class="${statusColor}">${res.status} ${res.statusText}</span> &bull; Request-ID: ${requestId.substring(0, 8)}... &bull; Device: ${deviceType}</span>
                     </div>
                     <pre style="color: #46d369; margin: 0; font-size: 0.85rem;">${JSON.stringify(json, null, 2)}</pre>
                 `;
