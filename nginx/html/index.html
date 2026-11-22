@@ -1017,7 +1017,8 @@
             if (bypass) headers['X-Cache-Bypass'] = '1';
 
             try {
-                const res = await fetch('/videos', { headers });
+                // cache: 'no-store' bypasses the browser's HTTP cache so we see the real NGINX cache status
+                const res = await fetch('/videos', { headers, cache: 'no-store' });
                 const t1 = performance.now();
                 const latency = (t1 - t0).toFixed(1);
                 const cacheStatus = res.headers.get('x-cache-status') || 'MISS';
@@ -1045,7 +1046,7 @@
             const t0 = performance.now();
 
             try {
-                const res = await fetch('/videos/1/thumbnail');
+                const res = await fetch('/videos/1/thumbnail', { cache: 'no-store' });
                 const t1 = performance.now();
                 const latency = (t1 - t0).toFixed(1);
                 const cacheStatus = res.headers.get('x-cache-status') || 'HIT';
