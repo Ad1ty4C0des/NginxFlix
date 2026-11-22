@@ -88,3 +88,13 @@ services:
     expose:
       - "3000"
     restart: unless-stopped
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: nginxflix-tunnel
+    command: tunnel --url https://nginxflix-proxy:443 --no-tls-verify
+    depends_on:
+      - nginx
+    restart: unless-stopped
+    profiles:
+      - tunnel

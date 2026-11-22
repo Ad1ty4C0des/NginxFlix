@@ -85,7 +85,14 @@ Add the following entries to your hosts file (`C:\Windows\System32\drivers\etc\h
 docker compose up --build -d
 ```
 
-### 3. Run the Automated 25-Feature Test Suite
+### 3. Optional: Launch Public Cloudflare Tunnel Demo
+To share a live, public HTTPS demo with recruiters or peers without opening ports:
+```bash
+docker compose up -d tunnel
+docker logs nginxflix-tunnel 2>&1 | grep "trycloudflare.com"
+```
+
+### 4. Run the Automated 25-Feature Test Suite
 * **PowerShell**:
   ```powershell
   powershell -ExecutionPolicy Bypass -File scripts\test-features.ps1

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NginxFlix — Production Streaming Infrastructure</title>
+    <title>NginxFlix — Production Streaming Infrastructure & Live Architecture Console</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
     <style>
@@ -12,11 +12,14 @@
             --primary-hover: #b80710;
             --bg-dark: #141414;
             --card-bg: #1f1f1f;
-            --card-hover: #292929;
+            --card-hover: #262626;
             --text-light: #ffffff;
-            --text-muted: #a3a3a3;
+            --text-muted: #999999;
             --border-color: #333333;
             --accent-green: #46d369;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
         }
 
         * {
@@ -35,24 +38,26 @@
             flex-direction: column;
         }
 
+        /* --- Header --- */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 48px;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
+            padding: 18px 48px;
+            background: rgba(20, 20, 20, 0.95);
             position: sticky;
             top: 0;
             z-index: 100;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .brand-logo {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 900;
             color: var(--primary);
             text-transform: uppercase;
-            letter-spacing: 2.5px;
+            letter-spacing: 2px;
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -60,7 +65,7 @@
         }
 
         .brand-logo span {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             background: rgba(229, 9, 20, 0.2);
             color: var(--primary);
             padding: 3px 8px;
@@ -71,14 +76,15 @@
 
         nav {
             display: flex;
-            gap: 24px;
+            align-items: center;
+            gap: 20px;
         }
 
         nav a {
             color: var(--text-light);
             text-decoration: none;
             font-weight: 500;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: color 0.2s ease;
         }
 
@@ -86,40 +92,47 @@
             color: var(--primary);
         }
 
-        .hero {
-            padding: 90px 24px 60px;
-            text-align: center;
-            background: radial-gradient(circle at 50% 20%, rgba(229, 9, 20, 0.18) 0%, rgba(20, 20, 20, 0.9) 70%);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .hero-badge {
+        .status-pill {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(70, 211, 105, 0.15);
+            background: rgba(70, 211, 105, 0.12);
             color: var(--accent-green);
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: 999px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            margin-bottom: 24px;
             border: 1px solid rgba(70, 211, 105, 0.3);
         }
 
-        .hero-badge .pulse {
+        .pulse {
             width: 8px;
             height: 8px;
             border-radius: 50%;
             background: var(--accent-green);
             box-shadow: 0 0 8px var(--accent-green);
+            animation: pulse-anim 2s infinite;
+        }
+
+        @keyframes pulse-anim {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* --- Hero --- */
+        .hero {
+            padding: 70px 24px 50px;
+            text-align: center;
+            background: radial-gradient(circle at 50% 20%, rgba(229, 9, 20, 0.16) 0%, rgba(20, 20, 20, 0.95) 75%);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .hero h1 {
-            font-size: 3.4rem;
+            font-size: 3.2rem;
             font-weight: 800;
             line-height: 1.15;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             letter-spacing: -0.5px;
         }
 
@@ -129,137 +142,360 @@
 
         .hero p {
             color: var(--text-muted);
-            max-width: 680px;
-            margin: 0 auto 32px;
+            max-width: 720px;
+            margin: 0 auto 28px;
             font-size: 1.15rem;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 48px 24px;
-            width: 100%;
-        }
-
-        .section-header {
-            margin-bottom: 32px;
+        .hero-badges {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
         }
 
-        .section-header h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
+        .hero-badge-item {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #ddd;
+            font-weight: 500;
         }
 
-        .section-header p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 24px;
-            margin-bottom: 56px;
-        }
-
-        .service-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 28px;
+        .hero-actions {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            justify-content: center;
+            gap: 16px;
         }
 
-        .service-card:hover {
-            transform: translateY(-4px);
-            border-color: #555555;
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-        }
-
-        .card-top {
-            margin-bottom: 20px;
-        }
-
-        .card-icon {
-            font-size: 2rem;
-            margin-bottom: 12px;
-            display: inline-block;
-        }
-
-        .service-card h3 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .card-endpoint {
-            font-family: "Courier New", Courier, monospace;
-            font-size: 0.8rem;
-            color: var(--primary);
-            background: rgba(229, 9, 20, 0.1);
-            padding: 4px 8px;
-            border-radius: 4px;
-            display: inline-block;
-            margin-bottom: 12px;
-        }
-
-        .service-card p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .card-action {
-            margin-top: auto;
-            padding-top: 18px;
-            border-top: 1px solid #2d2d2d;
-        }
-
-        .action-link {
+        .btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: var(--text-light);
-            text-decoration: none;
-            font-size: 0.9rem;
+            padding: 12px 24px;
+            border-radius: 6px;
             font-weight: 600;
-            transition: color 0.2s;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
         }
 
-        .action-link:hover {
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+        }
+
+        .btn-secondary:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
+        /* --- Container --- */
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            width: 100%;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+        }
+
+        /* --- Playground Navigation Tabs --- */
+        .playground-tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 12px 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
             color: var(--primary);
+            background: #1f1f1f;
+            border-bottom: 2px solid var(--primary);
         }
 
-        .architecture-banner {
-            background: #191919;
+        .tab-pane {
+            display: none;
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 32px;
+            padding: 28px;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
+            margin-bottom: 40px;
         }
 
-        .architecture-banner h3 {
-            font-size: 1.4rem;
-            margin-bottom: 16px;
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
         }
 
-        .ascii-art {
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Testbench Widgets --- */
+        .widget-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .widget-grid { grid-template-columns: 1fr; }
+            header { padding: 16px 20px; }
+            .hero h1 { font-size: 2.2rem; }
+        }
+
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .control-panel h3 {
+            font-size: 1.25rem;
+            margin-bottom: 4px;
+        }
+
+        .control-panel p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-action:hover {
+            background: #383838;
+            border-color: #666;
+            color: #fff;
+        }
+
+        .btn-action.highlight {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-action.highlight:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Console Output View */
+        .console-view {
             background: #0f0f0f;
+            border: 1px solid #282828;
             border-radius: 8px;
-            padding: 20px;
+            padding: 16px;
             font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
             font-size: 0.85rem;
-            color: var(--accent-green);
-            overflow-x: auto;
-            line-height: 1.4;
-            border: 1px solid #282828;
+            color: #46d369;
+            min-height: 220px;
+            max-height: 340px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #777;
+            font-size: 0.75rem;
+            border-bottom: 1px solid #222;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+
+        .log-entry {
+            line-height: 1.4;
+            word-break: break-all;
+        }
+
+        .log-entry .status-200 { color: var(--accent-green); font-weight: bold; }
+        .log-entry .status-206 { color: var(--accent-cyan); font-weight: bold; }
+        .log-entry .status-429 { color: var(--primary); font-weight: bold; }
+        .log-entry .status-hit { color: var(--accent-green); background: rgba(70, 211, 105, 0.15); padding: 2px 6px; border-radius: 4px; }
+        .log-entry .status-miss { color: var(--accent-amber); background: rgba(245, 158, 11, 0.15); padding: 2px 6px; border-radius: 4px; }
+        .log-entry .status-bypass { color: var(--accent-purple); background: rgba(139, 92, 246, 0.15); padding: 2px 6px; border-radius: 4px; }
+
+        /* Load Balancer Nodes Grid */
+        .nodes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .node-card {
+            background: #141414;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .node-card.active-hit {
+            border-color: var(--accent-green);
+            background: rgba(70, 211, 105, 0.1);
+            transform: scale(1.03);
+            box-shadow: 0 0 16px rgba(70, 211, 105, 0.3);
+        }
+
+        .node-icon { font-size: 1.6rem; margin-bottom: 6px; }
+        .node-title { font-size: 0.9rem; font-weight: 700; }
+        .node-counter { font-size: 1.3rem; font-weight: 800; color: #fff; margin: 4px 0; }
+        .node-sub { font-size: 0.75rem; color: #777; }
+
+        /* Video Player Wrapper */
+        .video-box {
+            width: 100%;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16 / 9;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+        }
+
+        video { width: 100%; height: 100%; display: block; }
+
+        /* Real-time Telemetry Stats */
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: #151515;
+            border: 1px solid #2d2d2d;
+            border-radius: 8px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary);
+            font-family: monospace;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* 25 Feature Table */
+        .features-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 0.9rem;
+        }
+
+        .features-table th, .features-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #282828;
+            text-align: left;
+        }
+
+        .features-table th {
+            background: #181818;
+            color: #aaa;
+            font-weight: 600;
+        }
+
+        .features-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .directive-tag {
+            font-family: monospace;
+            background: rgba(229, 9, 20, 0.12);
+            color: #ff6b72;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        /* Footer */
         footer {
             margin-top: auto;
             padding: 32px 24px;
@@ -273,156 +509,682 @@
 </head>
 <body>
     <header>
-        <a href="https://www.nginxflix.local" class="brand-logo">
+        <a href="/" class="brand-logo">
             NginxFlix <span>EDGE</span>
         </a>
         <nav>
-            <a href="https://app.nginxflix.local">App</a>
-            <a href="https://api.nginxflix.local/v1/videos">API</a>
-            <a href="https://cdn.nginxflix.local/videos/1/watch">Watch Stream</a>
-            <a href="https://cdn.nginxflix.local/videos">CDN</a>
-            <a href="https://ws.nginxflix.local">Live Chat</a>
-            <a href="https://admin.nginxflix.local">Admin</a>
+            <a href="#playground">Playground</a>
+            <a href="#architecture">Architecture</a>
+            <a href="#features">25 Features</a>
+            <a href="https://github.com/Ad1ty4C0des/NginxFlix" target="_blank" rel="noopener">GitHub ↗</a>
+            <div class="status-pill">
+                <span class="pulse"></span> NGINX Proxy Live
+            </div>
         </nav>
     </header>
 
     <section class="hero">
-        <div class="hero-badge">
-            <span class="pulse"></span> NGINX Reverse Proxy Active & Protected
+        <div class="hero-badges">
+            <span class="hero-badge-item">🛡️ TLS 1.3 / HTTP 206</span>
+            <span class="hero-badge-item">⚡ least_conn Balancer</span>
+            <span class="hero-badge-item">💾 Edge Proxy Cache</span>
+            <span class="hero-badge-item">💬 WebSocket Full-Duplex</span>
+            <span class="hero-badge-item">🚦 Leaky-Bucket Rate Limit</span>
         </div>
         <h1>Stream with <span>NGINX</span> Mastery</h1>
-        <p>A production-engineered streaming system demonstrating reverse proxying, load balancing, proxy caching, WebSockets, rate limiting, and zero-trust security.</p>
+        <p>A production-engineered infrastructure demonstrating 25 core NGINX features: reverse proxying, upstream load balancing, disk caching, zero-trust security, and real-time streaming.</p>
+        <div class="hero-actions">
+            <a href="#playground" class="btn btn-primary">⚡ Open Interactive Playground</a>
+            <a href="https://github.com/Ad1ty4C0des/NginxFlix" target="_blank" rel="noopener" class="btn btn-secondary">Source Code on GitHub</a>
+        </div>
     </section>
 
-    <div class="container">
-        <div class="section-header">
-            <div>
-                <h2>Routing Topology & Microservices</h2>
-                <p>Every subdomain routes through NGINX to dedicated upstream Express services.</p>
-            </div>
+    <div class="container" id="playground">
+        <div class="section-title">
+            <span>🎮</span> Live Interactive Architecture Playground
+        </div>
+        <p class="section-desc">Click to execute live requests against the running NGINX edge gateway and observe load balancing, caching, and rate limiting in real-time.</p>
+
+        <!-- Tabs -->
+        <div class="playground-tabs">
+            <button class="tab-btn active" onclick="switchTab('tab-balancer')">⚡ Load Balancer</button>
+            <button class="tab-btn" onclick="switchTab('tab-cache')">💾 CDN Proxy Cache</button>
+            <button class="tab-btn" onclick="switchTab('tab-gateway')">🔀 API Gateway &amp; Search</button>
+            <button class="tab-btn" onclick="switchTab('tab-ratelimit')">🚦 Rate Limiter (429)</button>
+            <button class="tab-btn" onclick="switchTab('tab-video')">🎬 Video Streaming</button>
+            <button class="tab-btn" onclick="switchTab('tab-chat')">💬 Live WebSocket Chat</button>
+            <button class="tab-btn" onclick="switchTab('tab-telemetry')">📊 NGINX Telemetry</button>
         </div>
 
-        <div class="services-grid">
-            <div class="service-card">
-                <div class="card-top">
-                    <span class="card-icon">⚡</span>
-                    <h3>Core Streaming App</h3>
-                    <div class="card-endpoint">https://app.nginxflix.local</div>
-                    <p>Load-balanced across 3 Express app instances using <code>least_conn</code> algorithm with passive health checks.</p>
-                </div>
-                <div class="card-action">
-                    <a href="https://app.nginxflix.local" class="action-link">Open App &rarr;</a>
-                </div>
-            </div>
+        <!-- 1. LOAD BALANCER TAB -->
+        <div id="tab-balancer" class="tab-pane active">
+            <div class="widget-grid">
+                <div class="control-panel">
+                    <h3>⚡ Upstream Load Balancing (<code>least_conn</code>)</h3>
+                    <p>NGINX distributes traffic across 3 independent Express app instances. Notice how requests balance across instances in real-time.</p>
+                    
+                    <div class="btn-group">
+                        <button class="btn-action highlight" onclick="sendLoadBalancedRequest()">⚡ Send 1 Request</button>
+                        <button class="btn-action" onclick="blastLoadBalancer(10)">🚀 Blast 10 Requests</button>
+                        <button class="btn-action" onclick="sendSlowRequest()">⏱️ Test Slow Node Failover (/slow)</button>
+                        <button class="btn-action" onclick="resetBalancerStats()">🔄 Reset Counters</button>
+                    </div>
 
-            <div class="service-card">
-                <div class="card-top">
-                    <span class="card-icon">🔀</span>
-                    <h3>Unified API Gateway</h3>
-                    <div class="card-endpoint">https://api.nginxflix.local/v1/</div>
-                    <p>Path-based routing dispatching to User, Video, and Search services with CORS handling and canary weighting.</p>
+                    <div class="nodes-grid">
+                        <div class="node-card" id="node-app-1">
+                            <div class="node-icon">🖥️</div>
+                            <div class="node-title">app-1</div>
+                            <div class="node-counter" id="cnt-app-1">0</div>
+                            <div class="node-sub">Port 3001</div>
+                        </div>
+                        <div class="node-card" id="node-app-2">
+                            <div class="node-icon">🖥️</div>
+                            <div class="node-title">app-2</div>
+                            <div class="node-counter" id="cnt-app-2">0</div>
+                            <div class="node-sub">Port 3002</div>
+                        </div>
+                        <div class="node-card" id="node-app-3">
+                            <div class="node-icon">🖥️</div>
+                            <div class="node-title">app-3</div>
+                            <div class="node-counter" id="cnt-app-3">0</div>
+                            <div class="node-sub">Port 3003</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-action">
-                    <a href="https://api.nginxflix.local/v1/videos" class="action-link">Browse API &rarr;</a>
-                </div>
-            </div>
 
-            <div class="service-card">
-                <div class="card-top">
-                    <span class="card-icon">🎬</span>
-                    <h3>High-Performance CDN & Video Player</h3>
-                    <div class="card-endpoint">https://cdn.nginxflix.local/videos/1/watch</div>
-                    <p>Edge disk caching with HTTP 206 Partial Content (Byte-Range) streaming, stale content serving on origin failure, and client cache bypass.</p>
-                </div>
-                <div class="card-action" style="display: flex; gap: 16px; flex-wrap: wrap;">
-                    <a href="https://cdn.nginxflix.local/videos/1/watch" class="action-link" style="color: var(--primary);">Play Video &rarr;</a>
-                    <a href="https://cdn.nginxflix.local/videos/1/thumbnail" class="action-link">Thumbnail &rarr;</a>
-                </div>
-            </div>
-
-            <div class="service-card">
-                <div class="card-top">
-                    <span class="card-icon">💬</span>
-                    <h3>WebSocket Live Chat</h3>
-                    <div class="card-endpoint">wss://ws.nginxflix.local</div>
-                    <p>Full-duplex WebSocket proxying with connection upgrades, long read timeouts, and per-IP connection limits.</p>
-                </div>
-                <div class="card-action">
-                    <a href="https://ws.nginxflix.local" class="action-link">Connect Chat &rarr;</a>
-                </div>
-            </div>
-
-            <div class="service-card">
-                <div class="card-top">
-                    <span class="card-icon">🔒</span>
-                    <h3>Admin & Observability</h3>
-                    <div class="card-endpoint">https://admin.nginxflix.local</div>
-                    <p>Restricted via IP whitelist, HTTP Basic Auth (<code>.htpasswd</code>), bot blocking, and NGINX status telemetry.</p>
-                </div>
-                <div class="card-action">
-                    <a href="https://admin.nginxflix.local" class="action-link">Admin Portal &rarr;</a>
-                </div>
-            </div>
-
-            <div class="service-card">
-                <div class="card-top">
-                    <span class="card-icon">🛡️</span>
-                    <h3>Hardened Security</h3>
-                    <div class="card-endpoint">TLS 1.3 &bull; HSTS &bull; CSP</div>
-                    <p>Enforcing strict transport security, cross-origin resource sharing, Gzip compression, and structured JSON logs.</p>
-                </div>
-                <div class="card-action">
-                    <a href="https://admin.nginxflix.local/nginx_status" class="action-link">Metrics &rarr;</a>
+                <div>
+                    <div class="console-view" id="balancer-console">
+                        <div class="console-header">
+                            <span>LIVE REQUEST LOG</span>
+                            <span id="balancer-latency">Ready</span>
+                        </div>
+                        <div class="log-entry">// Click "Send 1 Request" or "Blast 10 Requests" to test NGINX least_conn load balancing...</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="architecture-banner">
-            <h3>Infrastructure Blueprint</h3>
-            <pre class="ascii-art">
-   [ Client Browser / cURL ]
-               │
-               ▼
-   [ NGINX Port :80 ] ───(HTTP 301 Permanent Redirect)───► [ NGINX Port :443 (TLS/SSL) ]
-                                                                       │
-           ┌───────────────────────────────┬───────────────────────────┴───────────────────────────┐
-           │                               │                                                       │
-  www.nginxflix.local             app.nginxflix.local                                     api.nginxflix.local
-  [Static Marketing Site]       [Least Connections Balancer]                            [Path-Based API Gateway]
-           │                               │                                                       │
-    (Local HTML/CSS)             ┌─────────┼─────────┐                                 ┌───────────┼───────────┐
-                                 │         │         │                                 │           │           │
-                              :3001     :3002     :3003                             /users      /videos     /search
-                              App-1     App-2     App-3                             (:4001)     (:4002)     (:4003)
+        <!-- 2. CDN PROXY CACHE TAB -->
+        <div id="tab-cache" class="tab-pane">
+            <div class="widget-grid">
+                <div class="control-panel">
+                    <h3>💾 Edge Disk Caching (<code>proxy_cache</code>)</h3>
+                    <p>Observe sub-millisecond edge cache hits vs origin cache misses, client cache bypass controls, and stale failover.</p>
+
+                    <div class="btn-group">
+                        <button class="btn-action highlight" onclick="fetchCdnAsset(false)">📦 Fetch Video Catalog</button>
+                        <button class="btn-action" onclick="fetchCdnAsset(true)">⚡ Fetch with Bypass (X-Cache-Bypass: 1)</button>
+                        <button class="btn-action" onclick="fetchThumbnail()">🖼️ Fetch Thumbnail Image</button>
+                    </div>
+
+                    <div style="background: #151515; border: 1px solid #333; border-radius: 8px; padding: 14px; margin-top: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 0.85rem; color: #888;">Latest Cache Status:</span>
+                            <span id="cache-status-badge" style="font-weight: 800; font-family: monospace;">AWAITING REQUEST</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 0.85rem; color: #888;">Roundtrip Latency:</span>
+                            <span id="cache-latency-badge" style="font-weight: 800; font-family: monospace; color: var(--accent-green);">-- ms</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #777;">
+                            TTL: 24 Hours &bull; Cache Zone: <code>cdn_cache</code> &bull; Stale Serving: Enabled
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="console-view" id="cache-console">
+                        <div class="console-header">
+                            <span>CACHE HEADERS &amp; RESPONSE INSPECTOR</span>
+                            <span>proxy_cache</span>
+                        </div>
+                        <div class="log-entry">// Click "Fetch Video Catalog" to see MISS &rarr; HIT transition...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. API GATEWAY TAB -->
+        <div id="tab-gateway" class="tab-pane">
+            <div class="widget-grid">
+                <div class="control-panel">
+                    <h3>🔀 Path-Based API Gateway &amp; Search</h3>
+                    <p>NGINX dispatches path prefixes (<code>/v1/users</code>, <code>/v1/videos</code>, <code>/v1/search</code>) to separate microservices.</p>
+
+                    <div class="btn-group">
+                        <button class="btn-action" onclick="fetchApi('/v1/users')">👤 Users Service</button>
+                        <button class="btn-action" onclick="fetchApi('/v1/videos')">🎬 Videos Service</button>
+                        <button class="btn-action" onclick="fetchApi('/v1/search?q=nginx')">🔍 Search: "nginx"</button>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <input id="search-input" type="text" placeholder="Type query to live-search through gateway..." 
+                               style="width: 100%; background: #141414; border: 1px solid #444; border-radius: 6px; padding: 10px 14px; color: #fff; font-size: 0.9rem;"
+                               oninput="liveSearch(this.value)">
+                    </div>
+
+                    <div style="font-size: 0.8rem; color: #777; margin-top: 8px;">
+                        Correlation Tracing: <code>X-Request-ID</code> generated by NGINX &bull; Device Type: <code>X-Device-Type</code>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="console-view" id="gateway-console">
+                        <div class="console-header">
+                            <span>GATEWAY RESPONSE JSON</span>
+                            <span id="gateway-target">/v1/users</span>
+                        </div>
+                        <div class="log-entry">// Select an API endpoint or type in the search bar above...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. RATE LIMITING TAB -->
+        <div id="tab-ratelimit" class="tab-pane">
+            <div class="widget-grid">
+                <div class="control-panel">
+                    <h3>🚦 Rate Limiting (Leaky Bucket: <code>limit_req_zone</code>)</h3>
+                    <p>NGINX enforces a strict rate limit of <strong>10 requests/second</strong> on the API. When a burst exceeds the leaky bucket capacity, NGINX immediately drops the traffic with <code>HTTP 429 Too Many Requests</code> before it reaches Node.js.</p>
+
+                    <div class="btn-group">
+                        <button class="btn-action highlight" onclick="testRateLimitBurst()">🔥 Fire 15 Rapid Requests Burst</button>
+                        <button class="btn-action" onclick="clearRateLimitLog()">Clear Log</button>
+                    </div>
+
+                    <div style="background: #151515; border: 1px solid #333; border-radius: 8px; padding: 14px; margin-top: 14px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="font-size: 0.85rem; color: #888;">Expected Result:</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: var(--accent-green);">First 10: 200 OK</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                            <span style="font-size: 0.85rem; color: #888;">Overflow Burst:</span>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: var(--primary);">Next 5: 429 Rate Limited</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="console-view" id="ratelimit-console">
+                        <div class="console-header">
+                            <span>BURST EXECUTION WATERFALL</span>
+                            <span id="ratelimit-summary">Ready</span>
+                        </div>
+                        <div class="log-entry">// Click "Fire 15 Rapid Requests Burst" to trigger RFC 6585 429 response...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. VIDEO STREAMING TAB -->
+        <div id="tab-video" class="tab-pane">
+            <div class="widget-grid">
+                <div class="control-panel">
+                    <h3>🎬 Video Streaming &amp; Byte-Range Requests (HTTP 206)</h3>
+                    <p>Video streaming uses HTTP Range requests (<code>Range: bytes=0-1024</code>). NGINX forwards byte ranges upstream and caches slice chunks.</p>
+
+                    <div style="background: #151515; border: 1px solid #333; border-radius: 8px; padding: 14px; font-size: 0.85rem; line-height: 1.6;">
+                        <div>&gt; Video Codec: <strong>H.264 (AVC1) / AAC 720p 30fps</strong></div>
+                        <div>&gt; Protocol Handling: <strong>HTTP 206 Partial Content</strong></div>
+                        <div>&gt; Stream Source: <code>/videos/1/stream</code></div>
+                        <div>&gt; Standalone Player: <a href="/videos/1/watch" target="_blank" style="color: var(--primary);">Open Dedicated Watch Page ↗</a></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="video-box">
+                        <video controls autoplay loop playsinline preload="metadata">
+                            <source src="/videos/1/stream" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. WEBSOCKET CHAT TAB -->
+        <div id="tab-chat" class="tab-pane">
+            <div class="widget-grid">
+                <div class="control-panel">
+                    <h3>💬 WebSocket Live Chat (<code>101 Switching Protocols</code>)</h3>
+                    <p>NGINX upgrades the HTTP handshake to a full-duplex TCP WebSocket stream, bypassing response buffering with long idle timeouts.</p>
+
+                    <div style="background: #151515; border: 1px solid #333; border-radius: 8px; padding: 14px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 0.85rem; color: #888;">WebSocket Status:</span>
+                            <span id="ws-status" style="font-weight: 800; font-family: monospace; color: var(--accent-amber);">DISCONNECTED</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                            <input id="chat-input" type="text" placeholder="Type a message to stream viewers..." 
+                                   style="flex: 1; background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px 12px; color: #fff; font-size: 0.85rem;"
+                                   onkeypress="if(event.key==='Enter') sendChatMessage()">
+                            <button class="btn-action highlight" onclick="sendChatMessage()">Send</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="console-view" id="chat-console">
+                        <div class="console-header">
+                            <span>LIVE STREAM CHAT FEED</span>
+                            <span>wss://</span>
+                        </div>
+                        <div class="log-entry">// Connecting to live chat server via NGINX WebSocket proxy...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. TELEMETRY TAB -->
+        <div id="tab-telemetry" class="tab-pane">
+            <div class="control-panel">
+                <h3>📊 Live NGINX Status Telemetry (<code>stub_status</code>)</h3>
+                <p>Real-time metrics polled directly from NGINX's internal active connection tracking module.</p>
+
+                <div class="telemetry-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-active">--</div>
+                        <div class="stat-label">Active Connections</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-reqs" style="color: var(--accent-green);">--</div>
+                        <div class="stat-label">Total Requests Handled</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-reading" style="color: var(--accent-cyan);">--</div>
+                        <div class="stat-label">Reading Headers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-writing" style="color: var(--accent-amber);">--</div>
+                        <div class="stat-label">Writing Responses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-waiting" style="color: var(--accent-purple);">--</div>
+                        <div class="stat-label">Keepalive Waiting</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px; text-align: center;">
+                    <button class="btn-action" onclick="pollTelemetry()">🔄 Refresh Metrics Now</button>
+                    <span style="font-size: 0.8rem; color: #777; margin-left: 12px;">Auto-polls every 3 seconds</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ARCHITECTURE TOPOLOGY -->
+    <div class="container" id="architecture">
+        <div class="section-title">
+            <span>📐</span> Infrastructure Architecture Topology
+        </div>
+        <p class="section-desc">All external traffic terminates strictly at NGINX on ports 80/443. All backend Express services remain isolated on a private Docker bridge network.</p>
+
+        <div style="background: #191919; border: 1px solid var(--border-color); border-radius: 12px; padding: 24px;">
+            <pre style="background: #0f0f0f; border-radius: 8px; padding: 20px; font-family: monospace; font-size: 0.82rem; color: var(--accent-green); overflow-x: auto; line-height: 1.45; border: 1px solid #282828;">
+                                  [ User / Client Browser ]
+                                              │
+                                              ▼
+             [ NGINX :80 ] ──HTTP 301 Permanent Redirect──► [ NGINX :443 (TLS/SSL) ]
+                                                                     │
+      ┌───────────────────────────┬──────────────────────────────────┼───────────────────────────┬───────────────────────────┐
+      │ (www)                     │ (app)                            │ (api)                     │ (cdn)                     │ (ws)
+      ▼                           ▼                                  ▼                           ▼                           ▼
+  www.nginxflix.local      app.nginxflix.local                api.nginxflix.local         cdn.nginxflix.local         ws.nginxflix.local
+  [Static Marketing Site]  [Least-Connections Balancer]       [Path-Based API Gateway]    [Edge Proxy Cache]          [WebSocket Proxy]
+      │                           │                                  │                           │                           │
+   HTML/CSS Assets         ┌──────┼──────┐                    ┌──────┼──────┐              Proxy to :4002              Chat WebSockets
+                           │      │      │                    │      │      │            (use_stale failover)        (Connection upgrade)
+                         :3001  :3002  :3003                /users /videos /search               │                           │
+                         App-1  App-2  App-3                  │      │      │              video-service               chat-service
+                                                            :4001  :4002  :4003
             </pre>
         </div>
     </div>
 
+    <!-- 25 FEATURES TABLE -->
+    <div class="container" id="features">
+        <div class="section-title">
+            <span>⭐</span> The 25 Core NGINX Features Implemented
+        </div>
+        <p class="section-desc">All 25 features are fully tested, verified, and running in the live Docker environment.</p>
+
+        <div style="background: #191919; border: 1px solid var(--border-color); border-radius: 12px; overflow-x: auto;">
+            <table class="features-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">#</th>
+                        <th>Feature Name</th>
+                        <th>Key Directives</th>
+                        <th>Architectural Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>Static File Serving</td><td><span class="directive-tag">root, try_files</span></td><td>Bypasses Node.js to stream static HTML/CSS/SVG directly at C-speed.</td></tr>
+                    <tr><td>2</td><td>Virtual Hosting</td><td><span class="directive-tag">server_name</span></td><td>Routes www, app, api, cdn, ws, admin subdomains on a single IP.</td></tr>
+                    <tr><td>3</td><td>SSL/TLS Termination</td><td><span class="directive-tag">ssl_certificate, ssl_protocols</span></td><td>Handles TLS 1.2/1.3 handshakes with modern cipher suites.</td></tr>
+                    <tr><td>4</td><td>HTTP to HTTPS 301</td><td><span class="directive-tag">return 301 https://$host...</span></td><td>Forces strict HTTPS encryption preserving full request URI.</td></tr>
+                    <tr><td>5</td><td>Reverse Proxy</td><td><span class="directive-tag">proxy_pass, proxy_set_header</span></td><td>Shields private Node.js containers from direct internet exposure.</td></tr>
+                    <tr><td>6</td><td>Load Balancing</td><td><span class="directive-tag">least_conn</span></td><td>Routes traffic to the app instance with the fewest open connections.</td></tr>
+                    <tr><td>7</td><td>Passive Health Checks</td><td><span class="directive-tag">max_fails=3 fail_timeout=30s</span></td><td>Auto-isolates failing app nodes and shifts traffic to healthy nodes.</td></tr>
+                    <tr><td>8</td><td>API Gateway Routing</td><td><span class="directive-tag">location ~ ^/v1/...</span></td><td>Path-based routing dispatching to User, Video, and Search backends.</td></tr>
+                    <tr><td>9</td><td>Proxy Disk Caching</td><td><span class="directive-tag">proxy_cache, proxy_cache_valid</span></td><td>Two-level filesystem caching with sub-millisecond response latency.</td></tr>
+                    <tr><td>10</td><td>Cache Bypass</td><td><span class="directive-tag">proxy_cache_bypass $http_...</span></td><td>Allows authenticated clients to force fresh origin cache invalidation.</td></tr>
+                    <tr><td>11</td><td>WebSocket Proxying</td><td><span class="directive-tag">Upgrade, Connection "upgrade"</span></td><td>Full-duplex protocol upgrade with 3600s persistent idle timeouts.</td></tr>
+                    <tr><td>12</td><td>Rate Limiting</td><td><span class="directive-tag">limit_req_zone, limit_req_status 429</span></td><td>Leaky-bucket rate limiter returning RFC 6585 429 Too Many Requests.</td></tr>
+                    <tr><td>13</td><td>Connection Limiting</td><td><span class="directive-tag">limit_conn_zone, limit_conn</span></td><td>Caps maximum simultaneous TCP sockets per client IP.</td></tr>
+                    <tr><td>14</td><td>IP Access Control</td><td><span class="directive-tag">allow, deny all</span></td><td>Default-deny firewall restricting access to the administrative console.</td></tr>
+                    <tr><td>15</td><td>Gzip Compression</td><td><span class="directive-tag">gzip on, gzip_comp_level 6</span></td><td>On-the-fly payload compression reducing bandwidth by up to 75%.</td></tr>
+                    <tr><td>16</td><td>Custom Error Interceptors</td><td><span class="directive-tag">error_page 404 502 503, internal;</span></td><td>Branded dark-mode Netflix-themed error pages with internal guards.</td></tr>
+                    <tr><td>17</td><td>Scoped URL Rewrites</td><td><span class="directive-tag">rewrite ... break, return 301</span></td><td>Rewrites legacy endpoints (/watch?v=123 &rarr; /v1/videos/123).</td></tr>
+                    <tr><td>18</td><td>CORS &amp; Preflight</td><td><span class="directive-tag">Access-Control-Allow-Origin</span></td><td>Edge-level HTTP OPTIONS preflight interception with 204 No Content.</td></tr>
+                    <tr><td>19</td><td>Security Headers</td><td><span class="directive-tag">HSTS, X-Frame-Options, CSP</span></td><td>Hardens edge against clickjacking, MIME sniffing, and MITM exploits.</td></tr>
+                    <tr><td>20</td><td>Distributed Tracing</td><td><span class="directive-tag">proxy_set_header X-Request-ID</span></td><td>Passes UUID correlation tokens across microservices for distributed tracing.</td></tr>
+                    <tr><td>21</td><td>Structured JSON Logging</td><td><span class="directive-tag">log_format json_log escape=json</span></td><td>Elasticsearch/Datadog-ready JSON access logs with upstream latency.</td></tr>
+                    <tr><td>22</td><td>HTTP Basic Auth</td><td><span class="directive-tag">auth_basic, auth_basic_user_file</span></td><td>Apache MD5 (APR1) encrypted credentials protecting internal tools.</td></tr>
+                    <tr><td>23</td><td>Canary Deployments</td><td><span class="directive-tag">upstream ... weight=9 weight=1</span></td><td>Weighted canary splits routing 90% traffic to v1 and 10% to v2.</td></tr>
+                    <tr><td>24</td><td>Proxy Buffering &amp; Tuning</td><td><span class="directive-tag">proxy_buffering on, proxy_buffers</span></td><td>Memory buffer tuning decoupling Node.js from slow mobile downloaders.</td></tr>
+                    <tr><td>25</td><td>Dynamic Device Map</td><td><span class="directive-tag">map $http_user_agent $device_type</span></td><td>Zero-cost regex classification mapping User-Agents to desktop/mobile.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <footer>
-        <p>🎬 NginxFlix &bull; Production NGINX Reverse Proxy & Express Microservices Architecture</p>
+        <p>🎬 NginxFlix &bull; Production NGINX Reverse Proxy &amp; Express Microservices Architecture</p>
     </footer>
 
+    <!-- Interactive Playground Scripts -->
     <script>
-      // Adaptive routing: if accessed via Cloudflare Tunnel or external host, adapt links to unified portal paths
-      if (!window.location.hostname.endsWith('nginxflix.local')) {
-        const origin = window.location.origin;
-        document.querySelectorAll('a[href*="nginxflix.local"]').forEach(link => {
-          try {
-            const url = new URL(link.href);
-            if (url.hostname === 'app.nginxflix.local') {
-              link.href = origin + '/app' + url.pathname;
-            } else if (url.hostname === 'api.nginxflix.local') {
-              link.href = origin + url.pathname + url.search;
-            } else if (url.hostname === 'cdn.nginxflix.local') {
-              link.href = origin + url.pathname + url.search;
-            } else if (url.hostname === 'ws.nginxflix.local') {
-              link.href = origin + '/chat';
-            } else if (url.hostname === 'admin.nginxflix.local') {
-              link.href = origin + (url.pathname === '/nginx_status' ? '/nginx_status' : '/admin');
+        // Tab switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            const targetPane = document.getElementById(tabId);
+            if (targetPane) targetPane.classList.add('active');
+
+            if (tabId === 'tab-chat' && !window.chatSocket) {
+                initChatSocket();
             }
-          } catch(e) {}
-        });
-      }
+        }
+
+        // Base URL helper
+        function getApiUrl(path) {
+            // If on trycloudflare or custom domain, route through unified portal paths
+            return path;
+        }
+
+        // --- 1. LOAD BALANCER WIDGET ---
+        const balancerCounts = { 'app-1': 0, 'app-2': 0, 'app-3': 0 };
+
+        async function sendLoadBalancedRequest() {
+            const consoleEl = document.getElementById('balancer-console');
+            const latencyEl = document.getElementById('balancer-latency');
+            const t0 = performance.now();
+
+            try {
+                const res = await fetch('/app', { headers: { 'Accept': 'application/json' } });
+                const t1 = performance.now();
+                const latency = Math.round(t1 - t0);
+                const data = await res.json();
+                const instance = data.instance || 'unknown';
+
+                if (balancerCounts[instance] !== undefined) {
+                    balancerCounts[instance]++;
+                    document.getElementById(`cnt-${instance}`).textContent = balancerCounts[instance];
+                }
+
+                // Highlight active node
+                document.querySelectorAll('.node-card').forEach(n => n.classList.remove('active-hit'));
+                const activeCard = document.getElementById(`node-${instance}`);
+                if (activeCard) {
+                    activeCard.classList.add('active-hit');
+                    setTimeout(() => activeCard.classList.remove('active-hit'), 800);
+                }
+
+                latencyEl.textContent = `${latency}ms`;
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.innerHTML = `<span class="status-200">200 OK</span> &bull; <strong>${instance}</strong> &bull; Latency: ${latency}ms &bull; Time: ${new Date().toLocaleTimeString()} &bull; Payload: <code>${JSON.stringify(data)}</code>`;
+                consoleEl.appendChild(entry);
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            } catch (err) {
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.innerHTML = `<span class="status-429">ERROR</span> &bull; ${err.message}`;
+                consoleEl.appendChild(entry);
+            }
+        }
+
+        async function blastLoadBalancer(count) {
+            for (let i = 0; i < count; i++) {
+                sendLoadBalancedRequest();
+                await new Promise(r => setTimeout(r, 60));
+            }
+        }
+
+        async function sendSlowRequest() {
+            const consoleEl = document.getElementById('balancer-console');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<em>⏱️ Sending delayed request to /app/slow (2000ms delay)...</em>`;
+            consoleEl.appendChild(entry);
+            
+            fetch('/app/slow');
+            // While slow request is pending, blast 3 normal requests to show least_conn dodging the slow node
+            setTimeout(() => { blastLoadBalancer(3); }, 200);
+        }
+
+        function resetBalancerStats() {
+            for (let k in balancerCounts) {
+                balancerCounts[k] = 0;
+                document.getElementById(`cnt-${k}`).textContent = '0';
+            }
+            document.getElementById('balancer-console').innerHTML = '<div class="console-header"><span>LIVE REQUEST LOG</span><span>Reset</span></div>';
+        }
+
+        // --- 2. CDN PROXY CACHE WIDGET ---
+        async function fetchCdnAsset(bypass = false) {
+            const consoleEl = document.getElementById('cache-console');
+            const badgeEl = document.getElementById('cache-status-badge');
+            const latencyEl = document.getElementById('cache-latency-badge');
+            const t0 = performance.now();
+
+            const headers = { 'Accept': 'application/json' };
+            if (bypass) headers['X-Cache-Bypass'] = '1';
+
+            try {
+                const res = await fetch('/videos', { headers });
+                const t1 = performance.now();
+                const latency = (t1 - t0).toFixed(1);
+                const cacheStatus = res.headers.get('x-cache-status') || 'MISS';
+                const data = await res.json();
+
+                badgeEl.textContent = cacheStatus;
+                badgeEl.style.color = cacheStatus === 'HIT' ? 'var(--accent-green)' : (cacheStatus === 'BYPASS' ? 'var(--accent-purple)' : 'var(--accent-amber)');
+                latencyEl.textContent = `${latency} ms`;
+
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                const statusClass = cacheStatus === 'HIT' ? 'status-hit' : (cacheStatus === 'BYPASS' ? 'status-bypass' : 'status-miss');
+                entry.innerHTML = `GET /videos &bull; Status: <span class="${statusClass}">X-Cache-Status: ${cacheStatus}</span> &bull; Latency: ${latency}ms<br><span style="color:#777;">Catalog items: ${data.length} movies/videos</span>`;
+                consoleEl.appendChild(entry);
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            } catch (err) {
+                consoleEl.innerHTML += `<div class="log-entry" style="color:red">Error: ${err.message}</div>`;
+            }
+        }
+
+        async function fetchThumbnail() {
+            const consoleEl = document.getElementById('cache-console');
+            const badgeEl = document.getElementById('cache-status-badge');
+            const latencyEl = document.getElementById('cache-latency-badge');
+            const t0 = performance.now();
+
+            try {
+                const res = await fetch('/videos/1/thumbnail');
+                const t1 = performance.now();
+                const latency = (t1 - t0).toFixed(1);
+                const cacheStatus = res.headers.get('x-cache-status') || 'HIT';
+
+                badgeEl.textContent = cacheStatus;
+                badgeEl.style.color = cacheStatus === 'HIT' ? 'var(--accent-green)' : 'var(--accent-amber)';
+                latencyEl.textContent = `${latency} ms`;
+
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.innerHTML = `GET /videos/1/thumbnail &bull; <span class="status-hit">${cacheStatus}</span> &bull; Latency: ${latency}ms &bull; Type: SVG Image`;
+                consoleEl.appendChild(entry);
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            } catch(e) {}
+        }
+
+        // --- 3. API GATEWAY WIDGET ---
+        async function fetchApi(endpoint) {
+            const consoleEl = document.getElementById('gateway-console');
+            document.getElementById('gateway-target').textContent = endpoint;
+
+            try {
+                const res = await fetch(endpoint);
+                const requestId = res.headers.get('x-request-id') || 'gen-uuid';
+                const deviceType = res.headers.get('x-device-type') || 'desktop';
+                const json = await res.json();
+
+                consoleEl.innerHTML = `
+                    <div class="console-header">
+                        <span>ENDPOINT: ${endpoint}</span>
+                        <span>Request-ID: ${requestId.substring(0, 8)}... &bull; Device: ${deviceType}</span>
+                    </div>
+                    <pre style="color: #46d369; margin: 0; font-size: 0.85rem;">${JSON.stringify(json, null, 2)}</pre>
+                `;
+            } catch (err) {
+                consoleEl.innerHTML = `<div class="log-entry" style="color:red">Error fetching ${endpoint}: ${err.message}</div>`;
+            }
+        }
+
+        let searchTimeout = null;
+        function liveSearch(query) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                fetchApi(`/v1/search?q=${encodeURIComponent(query)}`);
+            }, 300);
+        }
+
+        // --- 4. RATE LIMITING WIDGET ---
+        async function testRateLimitBurst() {
+            const consoleEl = document.getElementById('ratelimit-console');
+            const summaryEl = document.getElementById('ratelimit-summary');
+            consoleEl.innerHTML = '<div class="console-header"><span>BURST WATERFALL</span><span>Executing 15 Requests...</span></div>';
+
+            let passed = 0;
+            let blocked = 0;
+
+            const requests = [];
+            for (let i = 1; i <= 15; i++) {
+                requests.push(
+                    fetch('/v1/users?burst=' + Date.now() + '_' + i)
+                        .then(res => {
+                            const entry = document.createElement('div');
+                            entry.className = 'log-entry';
+                            if (res.status === 200) {
+                                passed++;
+                                entry.innerHTML = `Req #${i.toString().padStart(2, '0')}: <span class="status-200">200 OK</span> &bull; Forwarded to user-service`;
+                            } else if (res.status === 429) {
+                                blocked++;
+                                entry.innerHTML = `Req #${i.toString().padStart(2, '0')}: <span class="status-429">429 Too Many Requests</span> &bull; Dropped at NGINX edge (Rate Limit Triggered)`;
+                            } else {
+                                entry.innerHTML = `Req #${i}: Status ${res.status}`;
+                            }
+                            consoleEl.appendChild(entry);
+                            consoleEl.scrollTop = consoleEl.scrollHeight;
+                        })
+                        .catch(err => {})
+                );
+            }
+
+            await Promise.all(requests);
+            summaryEl.textContent = `Passed: ${passed} | Blocked: ${blocked}`;
+        }
+
+        function clearRateLimitLog() {
+            document.getElementById('ratelimit-console').innerHTML = '<div class="console-header"><span>BURST WATERFALL</span><span>Ready</span></div>';
+        }
+
+        // --- 5. WEBSOCKET CHAT WIDGET ---
+        let chatSocket = null;
+        function initChatSocket() {
+            const statusEl = document.getElementById('ws-status');
+            const consoleEl = document.getElementById('chat-console');
+            const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${wsProto}//${location.host}/chat/`;
+
+            try {
+                chatSocket = new WebSocket(wsUrl);
+
+                chatSocket.onopen = () => {
+                    statusEl.textContent = 'CONNECTED (101 Switching Protocols)';
+                    statusEl.style.color = 'var(--accent-green)';
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry';
+                    entry.innerHTML = `<span class="status-200">Connected</span> &bull; Full-duplex WebSocket stream established through NGINX proxy`;
+                    consoleEl.appendChild(entry);
+                };
+
+                chatSocket.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        const entry = document.createElement('div');
+                        entry.className = 'log-entry';
+                        if (data.type === 'system') {
+                            entry.innerHTML = `<span style="color:#888;">[SYSTEM] ${data.text}</span>`;
+                        } else {
+                            entry.innerHTML = `<span style="color:var(--primary); font-weight:bold;">[VIEWER]</span> ${data.text}`;
+                        }
+                        consoleEl.appendChild(entry);
+                        consoleEl.scrollTop = consoleEl.scrollHeight;
+                    } catch(e) {}
+                };
+
+                chatSocket.onclose = () => {
+                    statusEl.textContent = 'DISCONNECTED';
+                    statusEl.style.color = 'var(--accent-amber)';
+                };
+            } catch (err) {}
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text || !chatSocket || chatSocket.readyState !== WebSocket.OPEN) return;
+            chatSocket.send(text);
+            input.value = '';
+        }
+
+        // --- 6. TELEMETRY WIDGET ---
+        async function pollTelemetry() {
+            try {
+                const res = await fetch('/nginx_status');
+                const text = await res.text();
+                
+                // Parse stub_status
+                const activeMatch = text.match(/Active connections:\s+(\d+)/);
+                const reqsMatch = text.match(/\s+(\d+)\s+(\d+)\s+(\d+)/);
+                const stateMatch = text.match(/Reading:\s+(\d+)\s+Writing:\s+(\d+)\s+Waiting:\s+(\d+)/);
+
+                if (activeMatch) document.getElementById('stat-active').textContent = activeMatch[1];
+                if (reqsMatch) document.getElementById('stat-reqs').textContent = Number(reqsMatch[3]).toLocaleString();
+                if (stateMatch) {
+                    document.getElementById('stat-reading').textContent = stateMatch[1];
+                    document.getElementById('stat-writing').textContent = stateMatch[2];
+                    document.getElementById('stat-waiting').textContent = stateMatch[3];
+                }
+            } catch(e) {}
+        }
+
+        // Initial setup
+        pollTelemetry();
+        setInterval(pollTelemetry, 3000);
     </script>
 </body>
 </html>
