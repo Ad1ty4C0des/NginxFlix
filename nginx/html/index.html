@@ -401,5 +401,28 @@
     <footer>
         <p>🎬 NginxFlix &bull; Production NGINX Reverse Proxy & Express Microservices Architecture</p>
     </footer>
+
+    <script>
+      // Adaptive routing: if accessed via Cloudflare Tunnel or external host, adapt links to unified portal paths
+      if (!window.location.hostname.endsWith('nginxflix.local')) {
+        const origin = window.location.origin;
+        document.querySelectorAll('a[href*="nginxflix.local"]').forEach(link => {
+          try {
+            const url = new URL(link.href);
+            if (url.hostname === 'app.nginxflix.local') {
+              link.href = origin + '/app' + url.pathname;
+            } else if (url.hostname === 'api.nginxflix.local') {
+              link.href = origin + url.pathname + url.search;
+            } else if (url.hostname === 'cdn.nginxflix.local') {
+              link.href = origin + url.pathname + url.search;
+            } else if (url.hostname === 'ws.nginxflix.local') {
+              link.href = origin + '/chat';
+            } else if (url.hostname === 'admin.nginxflix.local') {
+              link.href = origin + (url.pathname === '/nginx_status' ? '/nginx_status' : '/admin');
+            }
+          } catch(e) {}
+        });
+      }
+    </script>
 </body>
 </html>
