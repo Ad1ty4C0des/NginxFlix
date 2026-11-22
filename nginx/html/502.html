@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>502 — Bad Gateway | NginxFlix</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        :root {
+            --warning: #ff9800;
+            --primary: #E50914;
+            --bg-dark: #141414;
+            --card-bg: #1f1f1f;
+            --text-light: #ffffff;
+            --text-muted: #a3a3a3;
+            --border-color: #333333;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+            text-align: center;
+        }
+        .error-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 56px 40px;
+            max-width: 560px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+        .code-badge {
+            background: rgba(255, 152, 0, 0.15);
+            color: var(--warning);
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 999px;
+            display: inline-block;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 152, 0, 0.3);
+        }
+        h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.5px; }
+        p { color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 32px; }
+        .meta-info {
+            background: #141414;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 32px;
+            text-align: left;
+            font-family: monospace;
+            line-height: 1.5;
+        }
+        .meta-info span { color: var(--warning); }
+        .btn-group { display: flex; justify-content: center; gap: 16px; }
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: inline-block;
+            transition: background 0.2s ease, transform 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+        .btn:hover { background-color: #b80710; transform: translateY(-2px); }
+        .btn-secondary { background-color: #333333; }
+        .btn-secondary:hover { background-color: #444444; }
+    </style>
+</head>
+<body>
+    <div class="error-card">
+        <span class="code-badge">HTTP 502 — BAD GATEWAY</span>
+        <h1>Backend Servers Offline</h1>
+        <p>NGINX received the request successfully, but the upstream Express backend failed to respond or is currently unreachable.</p>
+        <div class="meta-info">
+            &gt; Proxy: NGINX Reverse Proxy<br>
+            &gt; Upstream: <span>Failed Connection (ECONNREFUSED / Timeout)</span><br>
+            &gt; Interceptor: error_page 502 /502.html;
+        </div>
+        <div class="btn-group">
+            <button onclick="window.location.reload()" class="btn">Retry Request</button>
+            <a href="https://www.nginxflix.local" class="btn btn-secondary">Homepage</a>
+        </div>
+    </div>
+</body>
+</html>

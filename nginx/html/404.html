@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 — Stream Not Found | NginxFlix</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        :root {
+            --primary: #E50914;
+            --bg-dark: #141414;
+            --card-bg: #1f1f1f;
+            --text-light: #ffffff;
+            --text-muted: #a3a3a3;
+            --border-color: #333333;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+            text-align: center;
+        }
+        .error-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 56px 40px;
+            max-width: 540px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+        .code-badge {
+            background: rgba(229, 9, 20, 0.15);
+            color: var(--primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 999px;
+            display: inline-block;
+            margin-bottom: 24px;
+            border: 1px solid rgba(229, 9, 20, 0.3);
+        }
+        h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.5px; }
+        p { color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 32px; }
+        .meta-info {
+            background: #141414;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            color: #777;
+            margin-bottom: 32px;
+            text-align: left;
+            font-family: monospace;
+        }
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: inline-block;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .btn:hover { background-color: #b80710; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="error-card">
+        <span class="code-badge">HTTP 404 — NOT FOUND</span>
+        <h1>Lost your way in the stream?</h1>
+        <p>The page or resource you requested does not exist on NginxFlix. Check the URL or return to our home dashboard.</p>
+        <div class="meta-info">
+            &gt; Origin: NGINX Edge Router<br>
+            &gt; Status: 404 (Resource Missing)<br>
+            &gt; Handling: Static Error Interceptor
+        </div>
+        <a href="https://www.nginxflix.local" class="btn">Back to Safety</a>
+    </div>
+</body>
+</html>

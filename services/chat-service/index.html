@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NginxFlix Live Chat</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+  <style>
+    :root {
+      --primary: #E50914;
+      --bg: #141414;
+      --card-bg: #1f1f1f;
+      --border: #333333;
+      --text: #ffffff;
+      --text-muted: #888888;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 24px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    h2 { font-size: 1.6rem; color: var(--primary); }
+    #status {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .connected { background: rgba(70, 211, 105, 0.2); color: #46d369; border: 1px solid #46d369; }
+    .disconnected { background: rgba(229, 9, 20, 0.2); color: #e50914; border: 1px solid #e50914; }
+    #chatWindow {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .msg {
+      padding: 10px 14px;
+      background: #2a2a2a;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      max-width: 80%;
+      word-break: break-word;
+    }
+    .system {
+      color: #fbbf24;
+      background: rgba(251, 191, 36, 0.1);
+      align-self: center;
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+    form {
+      display: flex;
+      gap: 12px;
+    }
+    input {
+      flex: 1;
+      padding: 14px 18px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #222;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+    }
+    input:focus { border-color: var(--primary); }
+    button {
+      padding: 14px 28px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #b80710; }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>🎬 NginxFlix Stream Chat</h2>
+    <div id="status" class="disconnected">Connecting...</div>
+  </header>
+  <div id="chatWindow"></div>
+  <form id="chatForm">
+    <input id="input" placeholder="Type a message to live stream viewers..." autocomplete="off" />
+    <button type="submit">Send</button>
+  </form>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const chatWindow = document.getElementById('chatWindow');
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('input');
+
+    // Dynamically connect over secure WSS or WS based on page protocol
+    const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${wsProto}//${location.host}/`);
+
+    function appendMessage(text, isSystem = false) {
+      const div = document.createElement('div');
+      div.className = 'msg' + (isSystem ? ' system' : '');
+      div.textContent = text;
+      chatWindow.appendChild(div);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    ws.onopen = () => {
+      statusEl.textContent = '🟢 Connected (NGINX Proxy)';
+      statusEl.className = 'connected';
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        appendMessage(data.text, data.type === 'system');
+      } catch (e) {
+        appendMessage(event.data);
+      }
+    };
+
+    ws.onclose = () => {
+      statusEl.textContent = '🔴 Disconnected';
+      statusEl.className = 'disconnected';
+    };
+
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const val = input.value.trim();
+      if (val && ws.readyState === WebSocket.OPEN) {
+        ws.send(val);
+        input.value = '';
+      }
+    };
+  </script>
+</body>
+</html>
