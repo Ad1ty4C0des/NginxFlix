@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install --omit=dev
 
-COPY server.js sample.mp4 ./
+COPY server.js watch.html sample.mp4 ./
 
 EXPOSE 3000
 
