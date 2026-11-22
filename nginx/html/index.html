@@ -575,6 +575,7 @@
             <button class="tab-btn" onclick="switchTab('tab-ratelimit')">🚦 Rate Limiter (429)</button>
             <button class="tab-btn" onclick="switchTab('tab-video')">🎬 Video Streaming</button>
             <button class="tab-btn" onclick="switchTab('tab-chat')">💬 Live WebSocket Chat</button>
+            <button class="tab-btn" onclick="switchTab('tab-canary')">🐤 Canary Deploy</button>
             <button class="tab-btn" onclick="switchTab('tab-telemetry')">📊 NGINX Telemetry</button>
         </div>
 
@@ -797,7 +798,59 @@
             </div>
         </div>
 
-        <!-- 7. TELEMETRY TAB -->
+        <!-- 7. CANARY DEPLOYMENT TAB -->
+        <div id="tab-canary" class="tab-pane">
+            <div class="widget-grid">
+                <div class="control-panel">
+                    <h3>🐤 Canary Deployment (<code>upstream weight=9/1</code>)</h3>
+                    <p>NGINX splits traffic between <strong>v1 (90%)</strong> and <strong>v2 (10%)</strong> using weighted upstreams. Fire multiple requests to <code>/v2/</code> and watch the weighted distribution in real-time.</p>
+
+                    <div class="btn-group">
+                        <button class="btn-action highlight" onclick="testCanary(20)">🚀 Fire 20 Canary Requests</button>
+                        <button class="btn-action" onclick="testCanary(50)">💥 Fire 50 Requests</button>
+                        <button class="btn-action" onclick="resetCanaryStats()">🔄 Reset</button>
+                    </div>
+
+                    <div class="nodes-grid" style="grid-template-columns: 1fr 1fr; margin-top: 16px;">
+                        <div class="node-card" id="node-v1">
+                            <div class="node-icon">🟢</div>
+                            <div class="node-title">v1 — Stable (weight=9)</div>
+                            <div class="node-counter" id="cnt-v1">0</div>
+                            <div class="node-sub">user-service (90%)</div>
+                        </div>
+                        <div class="node-card" id="node-v2">
+                            <div class="node-icon">🐤</div>
+                            <div class="node-title">v2 — Canary (weight=1)</div>
+                            <div class="node-counter" id="cnt-v2">0</div>
+                            <div class="node-sub">search-service (10%)</div>
+                        </div>
+                    </div>
+
+                    <div style="background: #151515; border: 1px solid #333; border-radius: 8px; padding: 14px; margin-top: 14px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="font-size: 0.85rem; color: #888;">NGINX Config:</span>
+                            <span style="font-size: 0.85rem; font-family: monospace; color: var(--accent-cyan);">upstream api_canary { server user-service weight=9; server search-service weight=1; }</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                            <span style="font-size: 0.85rem; color: #888;">Traffic Split:</span>
+                            <span id="canary-ratio" style="font-size: 0.85rem; font-weight: bold; color: var(--accent-green);">Awaiting test...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="console-view" id="canary-console">
+                        <div class="console-header">
+                            <span>CANARY DEPLOYMENT WATERFALL</span>
+                            <span id="canary-summary">Ready</span>
+                        </div>
+                        <div class="log-entry">// Click "Fire 20 Canary Requests" to observe weighted 90/10 traffic distribution...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. TELEMETRY TAB -->
         <div id="tab-telemetry" class="tab-pane">
             <div class="control-panel">
                 <h3>📊 Live NGINX Status Telemetry (<code>stub_status</code>)</h3>
@@ -1196,7 +1249,60 @@
             input.value = '';
         }
 
-        // --- 6. TELEMETRY WIDGET ---
+        // --- 6. CANARY DEPLOYMENT WIDGET ---
+        const canaryCounts = { v1: 0, v2: 0 };
+
+        async function testCanary(count) {
+            const consoleEl = document.getElementById('canary-console');
+            const summaryEl = document.getElementById('canary-summary');
+            const ratioEl = document.getElementById('canary-ratio');
+            consoleEl.innerHTML = `<div class="console-header"><span>CANARY WATERFALL</span><span>Firing ${count} requests...</span></div>`;
+
+            for (let i = 1; i <= count; i++) {
+                try {
+                    const res = await fetch('/v2/?canary=' + Date.now() + '_' + i, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+                    const json = await res.json();
+                    // user-service returns {service:"user-service"}, search-service returns {service:"search-service"}
+                    const service = json.service || 'unknown';
+                    const isCanary = service.includes('search');
+                    const version = isCanary ? 'v2' : 'v1';
+
+                    canaryCounts[version]++;
+                    document.getElementById(`cnt-${version}`).textContent = canaryCounts[version];
+
+                    // Highlight active node
+                    const card = document.getElementById(`node-${version}`);
+                    card.classList.add('active-hit');
+                    setTimeout(() => card.classList.remove('active-hit'), 400);
+
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry';
+                    const color = isCanary ? 'color:var(--accent-amber);font-weight:bold' : 'color:var(--accent-green)';
+                    entry.innerHTML = `Req #${i.toString().padStart(2, '0')}: <span style="${color}">${isCanary ? '🐤 CANARY (v2)' : '🟢 STABLE (v1)'}</span> &bull; Routed to: <code>${service}</code>`;
+                    consoleEl.appendChild(entry);
+                    consoleEl.scrollTop = consoleEl.scrollHeight;
+                } catch(e) {}
+                // Small stagger so NGINX applies weighted round-robin properly
+                await new Promise(r => setTimeout(r, 40));
+            }
+
+            const total = canaryCounts.v1 + canaryCounts.v2;
+            const v1Pct = total ? ((canaryCounts.v1 / total) * 100).toFixed(1) : 0;
+            const v2Pct = total ? ((canaryCounts.v2 / total) * 100).toFixed(1) : 0;
+            summaryEl.textContent = `v1: ${canaryCounts.v1} | v2: ${canaryCounts.v2}`;
+            ratioEl.innerHTML = `v1: <span style="color:var(--accent-green)">${v1Pct}%</span> &bull; v2: <span style="color:var(--accent-amber)">${v2Pct}%</span> (target: 90/10)`;
+        }
+
+        function resetCanaryStats() {
+            canaryCounts.v1 = 0;
+            canaryCounts.v2 = 0;
+            document.getElementById('cnt-v1').textContent = '0';
+            document.getElementById('cnt-v2').textContent = '0';
+            document.getElementById('canary-ratio').textContent = 'Awaiting test...';
+            document.getElementById('canary-console').innerHTML = '<div class="console-header"><span>CANARY WATERFALL</span><span>Reset</span></div>';
+        }
+
+        // --- 7. TELEMETRY WIDGET ---
         async function pollTelemetry() {
             try {
                 const res = await fetch('/nginx_status');
