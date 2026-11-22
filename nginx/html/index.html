@@ -1102,7 +1102,7 @@
                 const res = await fetch('/videos/1/thumbnail', { cache: 'no-store' });
                 const t1 = performance.now();
                 const latency = (t1 - t0).toFixed(1);
-                const cacheStatus = res.headers.get('x-cache-status') || 'HIT';
+                const cacheStatus = res.headers.get('x-cache-status') || 'MISS';
 
                 badgeEl.textContent = cacheStatus;
                 badgeEl.style.color = cacheStatus === 'HIT' ? 'var(--accent-green)' : 'var(--accent-amber)';
